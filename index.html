@@ -1,0 +1,1025 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Eleos — Your Emotional Support Companion</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet" />
+<style>
+/* ── Reset & Base ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+ 
+:root {
+  --purple: #6C5CE7;
+  --purple-light: #a29bfe;
+  --purple-pale: #f0eeff;
+  --purple-dark: #4834d4;
+  --teal: #00cec9;
+  --coral: #fd79a8;
+  --amber: #fdcb6e;
+  --green: #55efc4;
+  --text: #1a1a2e;
+  --text-muted: #6b7280;
+  --text-light: #9ca3af;
+  --bg: #fafafa;
+  --bg-card: #ffffff;
+  --border: rgba(0,0,0,0.08);
+  --shadow: 0 4px 24px rgba(108,92,231,0.1);
+  --shadow-lg: 0 12px 40px rgba(108,92,231,0.18);
+  --radius: 16px;
+  --radius-sm: 10px;
+  --font-head: 'Syne', sans-serif;
+  --font-body: 'DM Sans', sans-serif;
+  --sidebar-w: 280px;
+}
+ 
+html { font-size: 16px; }
+body {
+  font-family: var(--font-body);
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+ 
+.page { display: none; min-height: 100vh; }
+.page.active { display: flex; }
+ 
+/* ══════════════════════════════════
+   LOGIN MODAL
+══════════════════════════════════ */
+.modal-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.45);
+  z-index: 1000; display: none; align-items: center; justify-content: center;
+  backdrop-filter: blur(4px); animation: fadeIn 0.2s ease;
+}
+.modal-overlay.open { display: flex; }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+ 
+/* Login card */
+.login-container { display: flex; align-items: center; justify-content: center; width: 100%; }
+.login-card {
+  background: #fff; border-radius: var(--radius);
+  width: min(420px, 92vw); padding: 40px 36px;
+  box-shadow: 0 24px 80px rgba(0,0,0,0.2);
+  animation: slideUp 0.25s ease; position: relative;
+}
+@keyframes slideUp { from { transform: translateY(24px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+.login-logo {
+  font-family: var(--font-head); font-size: 28px; font-weight: 700;
+  color: var(--purple); margin-bottom: 20px; text-align: center;
+}
+.login-title { font-family: var(--font-head); font-size: 22px; font-weight: 700; color: var(--text); text-align: center; margin-bottom: 6px; }
+.login-subtitle { font-size: 14px; color: var(--text-muted); text-align: center; margin-bottom: 24px; }
+.close-modal {
+  position: absolute; top: 14px; right: 16px;
+  background: none; border: none; font-size: 22px; cursor: pointer;
+  color: var(--text-muted); line-height: 1; padding: 4px;
+  border-radius: 6px; transition: background 0.15s;
+}
+.close-modal:hover { background: var(--purple-pale); color: var(--purple); }
+.error-msg {
+  font-size: 13px; color: #c0392b; background: #fff5f5;
+  border: 1px solid #ffd6d6; border-radius: 8px;
+  padding: 10px 14px; margin-bottom: 14px; display: none;
+}
+.error-msg.visible { display: block; }
+#auth-form input {
+  width: 100%; padding: 12px 16px; margin-bottom: 12px;
+  border: 1.5px solid var(--border); border-radius: var(--radius-sm);
+  font-family: var(--font-body); font-size: 15px; color: var(--text);
+  background: #f9f8ff; outline: none; transition: border-color 0.15s; display: block;
+}
+#auth-form input:focus { border-color: var(--purple); background: #fff; }
+.login-btn {
+  width: 100%; padding: 14px; background: var(--purple); color: #fff;
+  border: none; border-radius: var(--radius-sm);
+  font-family: var(--font-head); font-size: 15px; font-weight: 600;
+  cursor: pointer; transition: background 0.15s; margin-top: 4px;
+}
+.login-btn:hover { background: var(--purple-dark); }
+.login-toggle { text-align: center; margin-top: 18px; font-size: 14px; color: var(--text-muted); }
+.login-toggle a { color: var(--purple); text-decoration: none; font-weight: 600; margin-left: 4px; }
+.login-toggle a:hover { text-decoration: underline; }
+ 
+/* ══════════════════════════════════
+   LANDING PAGE
+══════════════════════════════════ */
+#landing {
+  flex-direction: row;
+  align-items: stretch;
+  position: relative;
+  overflow: hidden;
+  background: #0d0d1a;
+}
+ 
+.landing-bg { position: absolute; inset: 0; pointer-events: none; z-index: 0; }
+.orb {
+  position: absolute; border-radius: 50%;
+  filter: blur(80px); opacity: 0.45;
+  animation: drift 12s ease-in-out infinite alternate;
+}
+.orb1 { width: 500px; height: 500px; background: #6C5CE7; top: -150px; left: -100px; animation-delay: 0s; }
+.orb2 { width: 380px; height: 380px; background: #fd79a8; bottom: -100px; left: 30%; animation-delay: -4s; }
+.orb3 { width: 300px; height: 300px; background: #00cec9; top: 30%; right: -80px; animation-delay: -8s; }
+@keyframes drift {
+  from { transform: translate(0,0) scale(1); }
+  to   { transform: translate(30px,20px) scale(1.08); }
+}
+ 
+.nav {
+  position: absolute; top: 0; left: 0; right: 0;
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 24px 48px; z-index: 10;
+}
+.logo { font-family: var(--font-head); font-size: 22px; font-weight: 700; color: #fff; }
+.nav-pill {
+  font-size: 12px; font-weight: 500;
+  background: rgba(255,255,255,0.12); color: rgba(255,255,255,0.8);
+  padding: 6px 14px; border-radius: 99px;
+  border: 1px solid rgba(255,255,255,0.2); letter-spacing: 0.04em;
+}
+ 
+.landing-content {
+  flex: 1; display: flex; flex-direction: column; justify-content: center;
+  padding: 120px 64px 80px; position: relative; z-index: 2;
+}
+ 
+.badge {
+  display: inline-block; font-size: 12px; font-weight: 600;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--purple-light); background: rgba(108,92,231,0.2);
+  border: 1px solid rgba(162,155,254,0.3);
+  padding: 6px 16px; border-radius: 99px; margin-bottom: 28px; width: fit-content;
+}
+.headline {
+  font-family: var(--font-head); font-size: clamp(42px, 5vw, 72px);
+  font-weight: 700; color: #fff; line-height: 1.1; margin-bottom: 20px;
+}
+.headline .accent {
+  background: linear-gradient(135deg, #a29bfe, #fd79a8);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+.subline {
+  font-size: 17px; font-weight: 300; color: rgba(255,255,255,0.65);
+  max-width: 480px; line-height: 1.7; margin-bottom: 40px;
+}
+.cta-btn {
+  display: inline-flex; align-items: center; gap: 10px;
+  background: #fff; color: var(--purple-dark);
+  font-family: var(--font-head); font-size: 16px; font-weight: 600;
+  padding: 16px 32px; border-radius: 99px; border: none; cursor: pointer;
+  transition: all 0.2s ease; width: fit-content; margin-bottom: 48px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+}
+.cta-btn:hover { transform: translateY(-2px); box-shadow: 0 12px 40px rgba(0,0,0,0.4); }
+.cta-btn .arrow { transition: transform 0.2s; }
+.cta-btn:hover .arrow { transform: translateX(4px); }
+ 
+.features { display: flex; flex-wrap: wrap; gap: 12px 24px; }
+.feat { display: flex; align-items: center; gap: 8px; font-size: 14px; color: rgba(255,255,255,0.6); }
+ 
+.preview-card {
+  width: 360px; flex-shrink: 0; margin: auto 64px auto 0;
+  background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12);
+  border-radius: var(--radius); padding: 28px; backdrop-filter: blur(20px);
+  position: relative; z-index: 2; display: flex; flex-direction: column; gap: 14px;
+  animation: floatCard 6s ease-in-out infinite;
+}
+@keyframes floatCard {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
+.preview-msg {
+  padding: 12px 16px; border-radius: 14px; font-size: 14px; line-height: 1.6; max-width: 90%;
+}
+.preview-msg.bot { background: rgba(255,255,255,0.12); color: rgba(255,255,255,0.9); border-bottom-left-radius: 4px; }
+.preview-msg.user { background: var(--purple); color: #fff; align-self: flex-end; border-bottom-right-radius: 4px; }
+.preview-tag {
+  font-size: 12px; color: rgba(255,255,255,0.5);
+  border-top: 1px solid rgba(255,255,255,0.1); padding-top: 12px; text-align: center;
+}
+.preview-tag strong { color: var(--purple-light); }
+ 
+/* ══════════════════════════════════
+   CHAT PAGE SHELL
+══════════════════════════════════ */
+#chat-page {
+  flex-direction: row; height: 100vh; background: #f5f4ff;
+}
+ 
+/* ── Tab Navigation Bar (top of sidebar) ── */
+.tab-nav {
+  display: flex; border-bottom: 1px solid var(--border);
+  background: var(--bg-card); flex-shrink: 0;
+}
+.tab-nav-btn {
+  flex: 1; padding: 12px 4px; border: none; background: none;
+  font-family: var(--font-body); font-size: 11px; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.06em;
+  color: var(--text-light); cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all 0.18s ease; display: flex; flex-direction: column;
+  align-items: center; gap: 4px;
+}
+.tab-nav-btn svg { opacity: 0.5; transition: opacity 0.18s; }
+.tab-nav-btn:hover { color: var(--purple); background: var(--purple-pale); }
+.tab-nav-btn:hover svg { opacity: 0.8; }
+.tab-nav-btn.active {
+  color: var(--purple); border-bottom-color: var(--purple);
+  background: var(--purple-pale);
+}
+.tab-nav-btn.active svg { opacity: 1; }
+ 
+/* Sidebar */
+.chat-sidebar {
+  width: var(--sidebar-w); background: var(--bg-card);
+  border-right: 1px solid var(--border);
+  display: flex; flex-direction: column; height: 100vh; overflow: hidden; flex-shrink: 0;
+}
+.sidebar-logo {
+  font-family: var(--font-head); font-size: 20px; font-weight: 700;
+  color: var(--purple); padding: 20px 20px 14px; cursor: pointer;
+  border-bottom: 1px solid var(--border); flex-shrink: 0;
+}
+ 
+/* Tab panels */
+.tab-panel { display: none; flex-direction: column; flex: 1; overflow-y: auto; }
+.tab-panel.active { display: flex; }
+ 
+.sidebar-section { padding: 16px 20px; border-bottom: 1px solid var(--border); }
+.sidebar-label {
+  font-size: 11px; font-weight: 600; text-transform: uppercase;
+  letter-spacing: 0.08em; color: var(--text-light); margin-bottom: 10px;
+}
+.emotion-display {
+  display: flex; align-items: center; gap: 12px;
+  background: var(--purple-pale); border-radius: var(--radius-sm); padding: 12px 14px;
+}
+.emotion-emoji { font-size: 28px; }
+.emotion-name { font-family: var(--font-head); font-size: 15px; font-weight: 600; color: var(--purple-dark); }
+.emotion-sub { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+ 
+.crisis-box { background: #fff5f5; border-left: 3px solid #fc5c65 !important; }
+.crisis-title { font-weight: 600; color: #c0392b; margin-bottom: 8px; }
+.crisis-box p { font-size: 13px; color: #555; margin-bottom: 10px; line-height: 1.6; }
+.helpline {
+  font-size: 13px; background: #fff; border: 1px solid #ffd6d6;
+  border-radius: 8px; padding: 8px 12px; margin-bottom: 6px;
+  color: var(--text); line-height: 1.6;
+}
+ 
+.tools-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.tool-btn {
+  background: var(--purple-pale); border: 1px solid rgba(108,92,231,0.15);
+  border-radius: var(--radius-sm); padding: 10px 8px;
+  font-family: var(--font-body); font-size: 13px; color: var(--purple-dark);
+  cursor: pointer; transition: all 0.15s;
+  display: flex; align-items: center; gap: 6px; justify-content: center;
+}
+.tool-btn:hover { background: #e0dcff; transform: translateY(-1px); }
+ 
+.sidebar-footer {
+  margin-top: auto; padding: 16px 20px; border-top: 1px solid var(--border); flex-shrink: 0;
+}
+.clear-btn {
+  background: none; border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 8px 14px;
+  font-family: var(--font-body); font-size: 13px; color: var(--text-muted);
+  cursor: pointer; margin-bottom: 6px; width: 100%; transition: all 0.15s;
+}
+.clear-btn:hover { background: #fff0f0; color: #c0392b; border-color: #ffd6d6; }
+.logout-btn {
+  background: none; border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 8px 14px;
+  font-family: var(--font-body); font-size: 13px; color: var(--text-muted);
+  cursor: pointer; margin-bottom: 10px; width: 100%; transition: all 0.15s;
+}
+.logout-btn:hover { background: #fff0f0; color: #c0392b; border-color: #ffd6d6; }
+.sidebar-footer p { font-size: 11px; color: var(--text-light); line-height: 1.6; }
+ 
+/* ══════════════════════════════════
+   CHAT MAIN
+══════════════════════════════════ */
+.chat-main { flex: 1; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+ 
+/* The main area that switches between views */
+.main-view { display: none; flex: 1; flex-direction: column; overflow: hidden; }
+.main-view.active { display: flex; }
+ 
+.chat-topbar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 16px 24px; background: var(--bg-card);
+  border-bottom: 1px solid var(--border); flex-shrink: 0;
+}
+.back-btn {
+  background: none; border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 6px 14px;
+  font-family: var(--font-body); font-size: 13px; color: var(--text-muted);
+  cursor: pointer; transition: all 0.15s;
+}
+.back-btn:hover { background: var(--purple-pale); color: var(--purple); }
+.topbar-center {
+  display: flex; align-items: center; gap: 8px;
+  font-family: var(--font-head); font-size: 14px; font-weight: 600; color: var(--text);
+}
+.online-dot {
+  width: 8px; height: 8px; border-radius: 50%; background: #00cec9;
+  box-shadow: 0 0 0 2px rgba(0,206,201,0.3); animation: pulse 2s ease-in-out infinite;
+}
+@keyframes pulse {
+  0%, 100% { box-shadow: 0 0 0 2px rgba(0,206,201,0.3); }
+  50% { box-shadow: 0 0 0 5px rgba(0,206,201,0.1); }
+}
+.topbar-right { font-size: 12px; color: var(--text-light); display: flex; align-items: center; gap: 8px; }
+ 
+.messages-wrap {
+  flex: 1; overflow-y: auto; padding: 24px;
+  display: flex; flex-direction: column; gap: 16px; scroll-behavior: smooth;
+}
+.messages-wrap::-webkit-scrollbar { width: 4px; }
+.messages-wrap::-webkit-scrollbar-thumb { background: rgba(108,92,231,0.2); border-radius: 4px; }
+ 
+.msg-row { display: flex; gap: 10px; align-items: flex-end; animation: msgIn 0.3s ease; }
+@keyframes msgIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.msg-row.user { flex-direction: row-reverse; }
+.avatar {
+  width: 34px; height: 34px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px; flex-shrink: 0;
+}
+.avatar.bot { background: var(--purple-pale); }
+.avatar.user { background: var(--purple); color: #fff; font-size: 11px; font-weight: 700; }
+.bubble {
+  max-width: 65%; padding: 12px 16px; border-radius: 18px; font-size: 15px; line-height: 1.65;
+}
+.msg-row.bot .bubble {
+  background: var(--bg-card); color: var(--text);
+  border-bottom-left-radius: 4px; border: 1px solid var(--border);
+}
+.msg-row.user .bubble { background: var(--purple); color: #fff; border-bottom-right-radius: 4px; }
+ 
+.typing-bubble { display: flex; gap: 5px; align-items: center; padding: 14px 18px; }
+.t-dot { width: 8px; height: 8px; border-radius: 50%; background: #c5c5d2; animation: tdot 1.2s infinite; }
+.t-dot:nth-child(2) { animation-delay: 0.2s; }
+.t-dot:nth-child(3) { animation-delay: 0.4s; }
+@keyframes tdot { 0%,80%,100% { transform: scale(0.6); opacity:0.4; } 40% { transform: scale(1); opacity:1; } }
+ 
+.input-area {
+  padding: 16px 24px 20px; background: var(--bg-card);
+  border-top: 1px solid var(--border); flex-shrink: 0;
+}
+.input-row { display: flex; gap: 10px; align-items: flex-end; flex-wrap: nowrap; }
+#msg-input {
+  flex: 1; font-family: var(--font-body); font-size: 15px;
+  padding: 12px 18px; border-radius: 14px; border: 1.5px solid var(--border);
+  background: #f9f8ff; color: var(--text); resize: none; outline: none;
+  min-height: 48px; max-height: 140px; transition: border-color 0.15s; line-height: 1.5;
+}
+#msg-input:focus { border-color: var(--purple); background: #fff; }
+#msg-input::placeholder { color: var(--text-light); }
+#send-btn {
+  width: 48px; height: 48px; border-radius: 50%;
+  background: var(--purple); color: #fff; border: none; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.15s; flex-shrink: 0;
+}
+#send-btn:hover { background: var(--purple-dark); transform: scale(1.05); }
+#send-btn:disabled { opacity: 0.4; cursor: default; transform: none; }
+.input-footer { font-size: 12px; color: var(--text-light); margin-top: 8px; text-align: center; }
+ 
+/* ── Voice Controls ── */
+.mic-btn {
+  width: 48px; height: 48px; border-radius: 50%;
+  background: #f0eeff; color: var(--purple);
+  border: 1.5px solid rgba(108,92,231,0.25);
+  cursor: pointer; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center; transition: all 0.2s;
+}
+.mic-btn:hover { background: #e0dcff; transform: scale(1.05); }
+.mic-btn.mic-active {
+  background: #fff0f0; color: #e74c3c; border-color: #e74c3c;
+  animation: micPulse 1.2s ease-in-out infinite;
+}
+@keyframes micPulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(231,76,60,0.3); }
+  50%       { box-shadow: 0 0 0 8px rgba(231,76,60,0); }
+}
+.speaker-btn {
+  width: 48px; height: 48px; border-radius: 50%;
+  background: #f0eeff; color: var(--purple);
+  border: 1.5px solid rgba(108,92,231,0.25);
+  cursor: pointer; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center; transition: all 0.2s;
+}
+.speaker-btn:hover { background: #e0dcff; transform: scale(1.05); }
+.speaker-btn.speaking-active {
+  background: #fff8e1; color: #e67e22; border-color: #e67e22;
+  animation: speakerPulse 1.5s ease-in-out infinite;
+}
+@keyframes speakerPulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(230,126,34,0.3); }
+  50%       { box-shadow: 0 0 0 6px rgba(230,126,34,0); }
+}
+.voice-toggle-btn {
+  width: 30px; height: 30px; border-radius: 8px;
+  background: var(--purple-pale); color: var(--purple);
+  border: 1px solid rgba(108,92,231,0.2); cursor: pointer;
+  display: flex; align-items: center; justify-content: center; transition: all 0.15s;
+}
+.voice-toggle-btn:hover { background: #e0dcff; }
+.voice-toggle-btn.muted { background: #f5f5f5; color: var(--text-light); border-color: var(--border); }
+.voice-status {
+  font-size: 13px; font-weight: 500; color: var(--purple);
+  background: var(--purple-pale); border: 1px solid rgba(108,92,231,0.2);
+  border-radius: var(--radius-sm); padding: 8px 14px; margin-bottom: 10px;
+  display: none; animation: fadeSlideIn 0.2s ease;
+}
+.voice-status.voice-status-error { color: #c0392b; background: #fff5f5; border-color: rgba(192,57,43,0.2); }
+@keyframes fadeSlideIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+ 
+/* ══════════════════════════════════
+   COMMUNITY TAB
+══════════════════════════════════ */
+#community-sidebar { padding: 20px; display: flex; flex-direction: column; gap: 16px; }
+.community-section-title {
+  font-family: var(--font-head); font-size: 13px; font-weight: 700;
+  color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em;
+  margin-bottom: 4px;
+}
+ 
+.group-card {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 14px;
+  cursor: pointer; transition: all 0.18s ease;
+  display: flex; flex-direction: column; gap: 6px;
+}
+.group-card:hover {
+  border-color: var(--purple-light); box-shadow: 0 4px 16px rgba(108,92,231,0.12);
+  transform: translateY(-1px);
+}
+.group-card.joined { border-color: var(--teal); background: rgba(0,206,201,0.05); }
+.group-top { display: flex; align-items: center; justify-content: space-between; }
+.group-name { font-family: var(--font-head); font-size: 13px; font-weight: 600; color: var(--text); }
+.group-badge {
+  font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 99px;
+  background: var(--purple-pale); color: var(--purple);
+}
+.group-badge.live { background: rgba(0,206,201,0.15); color: #00857f; }
+.group-desc { font-size: 12px; color: var(--text-muted); line-height: 1.5; }
+.group-meta { display: flex; align-items: center; gap: 8px; margin-top: 2px; }
+.group-meta-item { font-size: 11px; color: var(--text-light); display: flex; align-items: center; gap: 3px; }
+.group-join-btn {
+  margin-top: 6px; width: 100%; padding: 7px 12px;
+  border-radius: 8px; border: 1.5px solid var(--purple-light);
+  background: var(--purple-pale); color: var(--purple-dark);
+  font-family: var(--font-body); font-size: 12px; font-weight: 600;
+  cursor: pointer; transition: all 0.15s;
+}
+.group-join-btn:hover { background: var(--purple); color: #fff; border-color: var(--purple); }
+.group-join-btn.joined-btn { background: rgba(0,206,201,0.12); color: #00857f; border-color: var(--teal); }
+ 
+/* Community main view */
+#community-main { background: #f5f4ff; overflow-y: auto; }
+.community-hero {
+  background: linear-gradient(135deg, var(--purple) 0%, #a29bfe 100%);
+  padding: 40px 32px 32px; color: #fff; position: relative; overflow: hidden;
+}
+.community-hero::after {
+  content: ''; position: absolute; right: -60px; top: -60px;
+  width: 220px; height: 220px; border-radius: 50%;
+  background: rgba(255,255,255,0.08);
+}
+.community-hero h2 { font-family: var(--font-head); font-size: 24px; font-weight: 700; margin-bottom: 8px; }
+.community-hero p { font-size: 14px; opacity: 0.82; line-height: 1.6; max-width: 500px; }
+ 
+.community-stats {
+  display: flex; gap: 0; background: var(--bg-card);
+  border-bottom: 1px solid var(--border);
+}
+.stat-box { flex: 1; padding: 18px 16px; text-align: center; border-right: 1px solid var(--border); }
+.stat-box:last-child { border-right: none; }
+.stat-num { font-family: var(--font-head); font-size: 22px; font-weight: 700; color: var(--purple); }
+.stat-label { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+ 
+.sessions-list { padding: 20px 24px; display: flex; flex-direction: column; gap: 14px; }
+.sessions-list h3 {
+  font-family: var(--font-head); font-size: 15px; font-weight: 700;
+  color: var(--text); margin-bottom: 2px;
+}
+ 
+.session-card {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 18px 20px;
+  display: flex; gap: 16px; align-items: flex-start;
+  transition: all 0.18s ease; cursor: pointer;
+}
+.session-card:hover { box-shadow: var(--shadow); transform: translateY(-1px); }
+.session-icon {
+  width: 46px; height: 46px; border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px; flex-shrink: 0;
+}
+.session-info { flex: 1; }
+.session-name { font-family: var(--font-head); font-size: 15px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
+.session-desc { font-size: 13px; color: var(--text-muted); line-height: 1.5; margin-bottom: 10px; }
+.session-footer { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.session-pill {
+  font-size: 11px; font-weight: 600; padding: 3px 10px;
+  border-radius: 99px; display: flex; align-items: center; gap: 4px;
+}
+.pill-time { background: #fff8e1; color: #b7860b; }
+.pill-live { background: rgba(0,206,201,0.12); color: #00857f; }
+.pill-members { background: var(--purple-pale); color: var(--purple-dark); }
+ 
+.session-join-btn {
+  margin-left: auto; padding: 8px 18px; border-radius: 99px;
+  background: var(--purple); color: #fff; border: none;
+  font-family: var(--font-body); font-size: 13px; font-weight: 600;
+  cursor: pointer; transition: all 0.15s; white-space: nowrap; flex-shrink: 0;
+}
+.session-join-btn:hover { background: var(--purple-dark); transform: scale(1.03); }
+.session-join-btn.session-joined {
+  background: rgba(0,206,201,0.15); color: #00857f;
+  border: 1.5px solid var(--teal);
+}
+ 
+/* ══════════════════════════════════
+   THERAPIST BOOKING TAB
+══════════════════════════════════ */
+#therapist-sidebar { padding: 20px; display: flex; flex-direction: column; gap: 14px; }
+ 
+.filter-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.filter-chip {
+  font-size: 11px; font-weight: 600; padding: 5px 12px; border-radius: 99px;
+  border: 1.5px solid var(--border); background: var(--bg);
+  color: var(--text-muted); cursor: pointer; transition: all 0.15s;
+}
+.filter-chip:hover, .filter-chip.active {
+  background: var(--purple-pale); border-color: var(--purple-light); color: var(--purple-dark);
+}
+ 
+.availability-toggle {
+  display: flex; gap: 0; border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm); overflow: hidden;
+}
+.avail-btn {
+  flex: 1; padding: 7px 8px; border: none; background: var(--bg);
+  font-family: var(--font-body); font-size: 11px; font-weight: 600;
+  color: var(--text-muted); cursor: pointer; transition: all 0.15s;
+}
+.avail-btn.active { background: var(--purple); color: #fff; }
+ 
+.sidebar-search { position: relative; }
+.sidebar-search input {
+  width: 100%; padding: 9px 12px 9px 34px;
+  border: 1.5px solid var(--border); border-radius: var(--radius-sm);
+  font-family: var(--font-body); font-size: 13px; color: var(--text);
+  background: var(--bg); outline: none; transition: border-color 0.15s;
+}
+.sidebar-search input:focus { border-color: var(--purple); background: #fff; }
+.sidebar-search svg {
+  position: absolute; left: 10px; top: 50%; transform: translateY(-50%);
+  color: var(--text-light); pointer-events: none;
+}
+ 
+/* Therapist main view */
+#therapist-main { background: #f5f4ff; overflow-y: auto; }
+ 
+.therapist-topbar {
+  background: var(--bg-card); padding: 24px 28px 20px;
+  border-bottom: 1px solid var(--border);
+}
+.therapist-topbar h2 {
+  font-family: var(--font-head); font-size: 20px; font-weight: 700;
+  color: var(--text); margin-bottom: 4px;
+}
+.therapist-topbar p { font-size: 13px; color: var(--text-muted); }
+ 
+.therapist-grid { padding: 20px 24px; display: flex; flex-direction: column; gap: 16px; }
+ 
+.therapist-card {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 20px;
+  display: flex; gap: 16px; transition: all 0.18s; cursor: default;
+}
+.therapist-card:hover { box-shadow: var(--shadow); border-color: rgba(108,92,231,0.2); }
+ 
+.therapist-avatar {
+  width: 58px; height: 58px; border-radius: 50%; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 26px; font-weight: 700; color: #fff;
+}
+ 
+.therapist-info { flex: 1; }
+.therapist-name { font-family: var(--font-head); font-size: 16px; font-weight: 700; color: var(--text); margin-bottom: 2px; }
+.therapist-creds { font-size: 12px; color: var(--text-muted); margin-bottom: 8px; }
+ 
+.therapist-tags { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 10px; }
+.tag {
+  font-size: 11px; padding: 3px 9px; border-radius: 99px;
+  background: var(--purple-pale); color: var(--purple-dark); font-weight: 500;
+}
+ 
+.therapist-meta { display: flex; align-items: center; gap: 16px; margin-bottom: 12px; flex-wrap: wrap; }
+.meta-item { font-size: 12px; color: var(--text-muted); display: flex; align-items: center; gap: 4px; }
+.rating-stars { color: #f59e0b; font-size: 13px; }
+ 
+.book-btn {
+  padding: 9px 20px; border-radius: 99px;
+  background: var(--purple); color: #fff;
+  border: none; font-family: var(--font-body); font-size: 13px; font-weight: 600;
+  cursor: pointer; transition: all 0.15s; white-space: nowrap; display: inline-flex;
+  align-items: center; gap: 6px;
+}
+.book-btn:hover { background: var(--purple-dark); transform: scale(1.03); }
+ 
+.avail-badge {
+  font-size: 11px; font-weight: 600; padding: 3px 10px;
+  border-radius: 99px; display: inline-block; margin-bottom: 10px;
+}
+.avail-now { background: rgba(0,206,201,0.12); color: #00857f; }
+.avail-soon { background: #fff8e1; color: #b7860b; }
+ 
+/* Booking Modal */
+.booking-modal-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.45);
+  z-index: 2000; display: none; align-items: center; justify-content: center;
+  backdrop-filter: blur(4px); animation: fadeIn 0.2s ease;
+}
+.booking-modal-overlay.open { display: flex; }
+ 
+.modal {
+  background: #fff; border-radius: var(--radius);
+  width: min(520px, 92vw); max-height: 88vh; overflow-y: auto;
+  box-shadow: 0 24px 80px rgba(0,0,0,0.2);
+  animation: slideUp 0.25s ease;
+}
+ 
+.modal-header {
+  padding: 24px 24px 0; display: flex; justify-content: space-between; align-items: flex-start;
+}
+.modal-close {
+  background: none; border: none; font-size: 20px; cursor: pointer;
+  color: var(--text-muted); line-height: 1; padding: 4px;
+  border-radius: 6px; transition: background 0.15s;
+}
+.modal-close:hover { background: var(--purple-pale); color: var(--purple); }
+.modal-therapist-info { display: flex; gap: 14px; align-items: center; }
+.modal-body { padding: 20px 24px 28px; }
+ 
+.modal-section-title {
+  font-family: var(--font-head); font-size: 13px; font-weight: 700;
+  color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em;
+  margin: 20px 0 12px;
+}
+.modal-section-title:first-child { margin-top: 0; }
+ 
+.date-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.date-btn {
+  padding: 10px 6px; border-radius: var(--radius-sm);
+  border: 1.5px solid var(--border); background: var(--bg);
+  font-family: var(--font-body); font-size: 12px; font-weight: 500;
+  color: var(--text-muted); cursor: pointer; transition: all 0.15s; text-align: center;
+}
+.date-btn:hover { border-color: var(--purple-light); background: var(--purple-pale); color: var(--purple-dark); }
+.date-btn.selected { background: var(--purple); color: #fff; border-color: var(--purple); }
+.date-day { font-size: 10px; display: block; margin-bottom: 2px; opacity: 0.75; }
+.date-num { font-size: 15px; font-weight: 700; display: block; }
+ 
+.time-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.time-btn {
+  padding: 9px 6px; border-radius: var(--radius-sm);
+  border: 1.5px solid var(--border); background: var(--bg);
+  font-family: var(--font-body); font-size: 12px; font-weight: 500;
+  color: var(--text-muted); cursor: pointer; transition: all 0.15s; text-align: center;
+}
+.time-btn:hover { border-color: var(--purple-light); background: var(--purple-pale); color: var(--purple-dark); }
+.time-btn.selected { background: var(--purple); color: #fff; border-color: var(--purple); }
+.time-btn.unavailable { opacity: 0.35; cursor: not-allowed; }
+.time-btn.unavailable:hover { background: var(--bg); border-color: var(--border); color: var(--text-muted); }
+ 
+.session-type-row { display: flex; gap: 8px; }
+.type-btn {
+  flex: 1; padding: 12px 8px; border-radius: var(--radius-sm);
+  border: 1.5px solid var(--border); background: var(--bg);
+  font-family: var(--font-body); font-size: 12px; font-weight: 500;
+  color: var(--text-muted); cursor: pointer; transition: all 0.15s; text-align: center;
+}
+.type-btn:hover { border-color: var(--purple-light); background: var(--purple-pale); }
+.type-btn.selected { background: var(--purple-pale); border-color: var(--purple); color: var(--purple-dark); }
+.type-icon { font-size: 20px; display: block; margin-bottom: 4px; }
+ 
+.modal-note {
+  font-size: 13px; color: var(--text-muted); line-height: 1.6;
+  background: var(--purple-pale); border-radius: var(--radius-sm);
+  padding: 12px 14px; margin-top: 4px;
+}
+ 
+.confirm-btn {
+  width: 100%; margin-top: 20px; padding: 14px;
+  background: var(--purple); color: #fff;
+  border: none; border-radius: var(--radius-sm);
+  font-family: var(--font-head); font-size: 15px; font-weight: 600;
+  cursor: pointer; transition: all 0.15s;
+}
+.confirm-btn:hover { background: var(--purple-dark); }
+.confirm-btn:disabled { opacity: 0.4; cursor: default; }
+ 
+.booking-success { text-align: center; padding: 32px 24px; }
+.success-icon {
+  width: 64px; height: 64px; background: rgba(0,206,201,0.1);
+  border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  font-size: 30px; margin: 0 auto 16px;
+}
+.booking-success h3 { font-family: var(--font-head); font-size: 20px; margin-bottom: 8px; color: var(--text); }
+.booking-success p { font-size: 14px; color: var(--text-muted); line-height: 1.7; }
+.success-close {
+  margin-top: 20px; padding: 10px 28px; border-radius: 99px;
+  background: var(--purple); color: #fff; border: none;
+  font-family: var(--font-body); font-size: 14px; font-weight: 600;
+  cursor: pointer; transition: background 0.15s;
+}
+.success-close:hover { background: var(--purple-dark); }
+ 
+/* Emotion colors */
+.e-Sad .emotion-display        { background: #ebf4ff; }
+.e-Sad .emotion-name           { color: #2980b9; }
+.e-Anxious .emotion-display    { background: #e8f8f5; }
+.e-Anxious .emotion-name       { color: #1a7a6e; }
+.e-Angry .emotion-display      { background: #fff0ed; }
+.e-Angry .emotion-name         { color: #c0392b; }
+.e-Lonely .emotion-display     { background: #f0eeff; }
+.e-Lonely .emotion-name        { color: #4834d4; }
+.e-Overwhelmed .emotion-display{ background: #fff8e1; }
+.e-Overwhelmed .emotion-name   { color: #b7860b; }
+.e-Happy .emotion-display      { background: #eafaf1; }
+.e-Happy .emotion-name         { color: #1e8449; }
+.e-Crisis .emotion-display     { background: #fff5f5; }
+.e-Crisis .emotion-name        { color: #c0392b; }
+ 
+/* Responsive */
+@media (max-width: 768px) {
+  #landing { flex-direction: column; }
+  .landing-content { padding: 100px 28px 40px; }
+  .preview-card { width: calc(100% - 56px); margin: 0 28px 60px; }
+  .headline { font-size: 38px; }
+  .chat-sidebar { display: none; }
+  .nav { padding: 20px 24px; }
+  .speaker-btn { display: none; }
+  .voice-toggle-btn { display: none; }
+}
+</style>
+</head>
+<body>
+ 
+<!-- LOGIN MODAL -->
+<div id="login-modal" class="modal-overlay">
+  <div class="login-container">
+    <div class="login-card">
+      <button class="close-modal" onclick="closeLoginModal()">&#x2715;</button>
+      <div class="login-logo">Eleos</div>
+      <h2 class="login-title">Welcome back</h2>
+      <p class="login-subtitle">Sign in to continue your journey</p>
+      <div id="error-msg" class="error-msg"></div>
+      <form id="auth-form" onsubmit="handleAuthSubmit(event)">
+        <input type="email" id="email" placeholder="Email" required autocomplete="email" />
+        <input type="password" id="password" placeholder="Password" required autocomplete="current-password" />
+        <button type="submit" class="login-btn" id="submit-btn">Sign In</button>
+      </form>
+      <div class="login-toggle">
+        <span id="toggle-text">Don't have an account?</span>
+        <a href="#" id="toggle-link" onclick="toggleAuthMode(event)">Sign Up</a>
+      </div>
+    </div>
+  </div>
+</div>
+ 
+<!-- LANDING PAGE -->
+<div id="landing" class="page active">
+  <div class="landing-bg">
+    <div class="orb orb1"></div>
+    <div class="orb orb2"></div>
+    <div class="orb orb3"></div>
+  </div>
+  <nav class="nav">
+    <div class="logo">Eleos</div>
+    <div class="nav-pill">AI Emotional Companion</div>
+  </nav>
+  <div class="landing-content">
+    <div class="badge">Safe · Free · Judgment-Free</div>
+    <h1 class="headline">Someone who<br /><span class="accent">actually listens.</span></h1>
+    <p class="subline">Eleos is an AI emotional support companion built for teens and young adults aged 15–25. Share what's on your mind — no filters, no shame.</p>
+    <button class="cta-btn" onclick="handleStartTalking()">Start talking <span class="arrow">→</span></button>
+    <div class="features">
+      <div class="feat"><span>💬</span> Real empathy, not scripts</div>
+      <div class="feat"><span>🔒</span> Private &amp; secure</div>
+      <div class="feat"><span>🌙</span> Available 24/7</div>
+      <div class="feat"><span>🆘</span> Crisis-aware safety layer</div>
+    </div>
+  </div>
+  <div class="preview-card">
+    <div class="preview-msg bot">Hey, I'm really glad you're here. How are you feeling today?</div>
+    <div class="preview-msg user">I've been really anxious about college lately...</div>
+    <div class="preview-msg bot">That makes complete sense — college is a huge transition. What part of it worries you the most right now?</div>
+    <div class="preview-tag">Detected emotion: <strong>Anxious</strong></div>
+  </div>
+</div>
+ 
+<!-- CHAT PAGE -->
+<div id="chat-page" class="page">
+  <div class="chat-sidebar">
+    <div class="sidebar-logo" onclick="goToLanding()">Eleos</div>
+    <div class="tab-nav">
+      <button class="tab-nav-btn active" onclick="switchTab('chat')" id="tab-chat">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> Chat
+      </button>
+      <button class="tab-nav-btn" onclick="switchTab('community')" id="tab-community">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> Community
+      </button>
+      <button class="tab-nav-btn" onclick="switchTab('therapist')" id="tab-therapist">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> Therapist
+      </button>
+    </div>
+ 
+    <!-- CHAT Panel (Mood tracker section removed) -->
+    <div class="tab-panel active" id="panel-chat">
+      <div class="sidebar-section">
+        <div class="sidebar-label">How you seem</div>
+        <div class="emotion-display">
+          <div class="emotion-emoji" id="emotion-emoji"></div>
+          <div>
+            <div class="emotion-name" id="emotion-name">Ready to listen</div>
+            <div class="emotion-sub" id="emotion-sub">Start a conversation</div>
+          </div>
+        </div>
+      </div>
+      <!-- Mood tracker section is removed -->
+      <div class="sidebar-section crisis-box" id="crisis-box" style="display:none">
+        <div class="crisis-title">You matter</div>
+        <p>If you're in distress, please reach out to someone who can help:</p>
+        <div class="helpline"><strong>iCall (India)</strong><br/>9152987821</div>
+        <div class="helpline"><strong>Vandrevala Foundation</strong><br/>1860-2662-345</div>
+        <div class="helpline"><strong>AASRA</strong><br/>9820466627</div>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-label">Coping toolkit</div>
+        <div class="tools-grid">
+          <button class="tool-btn" onclick="sendQuick('Help me with a breathing exercise')">🫁 Breathe</button>
+          <button class="tool-btn" onclick="sendQuick('Give me a quick grounding exercise')">🌿 Ground</button>
+          <button class="tool-btn" onclick="sendQuick('Tell me something positive')">✨ Uplift</button>
+          <button class="tool-btn" onclick="sendQuick('Help me journal my thoughts')">📓 Journal</button>
+        </div>
+      </div>
+      <div class="sidebar-footer">
+        <button class="clear-btn" onclick="clearChat()">Clear chat</button>
+        <button class="logout-btn" onclick="logout()">Logout</button>
+        <p>Eleos is not a substitute for professional mental health care.</p>
+      </div>
+    </div>
+ 
+    <!-- COMMUNITY Panel -->
+    <div class="tab-panel" id="panel-community">
+      <div id="community-sidebar">
+        <div>
+          <div class="community-section-title">Active Groups</div>
+          <div style="display:flex;flex-direction:column;gap:10px;margin-top:8px">
+            <div class="group-card"><div class="group-top"><div class="group-name">Anxiety &amp; Stress</div><div class="group-badge live">● Live</div></div><div class="group-desc">A safe space to share and breathe together.</div><div class="group-meta"><div class="group-meta-item">👥 24 members</div><div class="group-meta-item">💬 Active now</div></div><button class="group-join-btn" onclick="joinGroup(this, event)">Join Group</button></div>
+            <div class="group-card"><div class="group-top"><div class="group-name">Academic Pressure</div><div class="group-badge">Weekly</div></div><div class="group-desc">Students navigating exams, grades &amp; burnout.</div><div class="group-meta"><div class="group-meta-item">👥 41 members</div><div class="group-meta-item">📅 Sat 7 PM</div></div><button class="group-join-btn" onclick="joinGroup(this, event)">Join Group</button></div>
+            <div class="group-card"><div class="group-top"><div class="group-name">Loneliness &amp; Connection</div><div class="group-badge">Bi-weekly</div></div><div class="group-desc">For those who just want to feel less alone.</div><div class="group-meta"><div class="group-meta-item">👥 18 members</div><div class="group-meta-item">📅 Wed 6 PM</div></div><button class="group-join-btn" onclick="joinGroup(this, event)">Join Group</button></div>
+          </div>
+        </div>
+      </div>
+    </div>
+ 
+    <!-- THERAPIST Panel -->
+    <div class="tab-panel" id="panel-therapist">
+      <div id="therapist-sidebar">
+        <div class="community-section-title">Find a Therapist</div>
+        <div class="sidebar-search"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input type="text" placeholder="Search by name or specialty..." oninput="filterTherapists(this.value)" /></div>
+        <div><div class="community-section-title" style="margin-bottom:8px">Specialty</div><div class="filter-chips"><div class="filter-chip active" onclick="toggleChip(this)">All</div><div class="filter-chip" onclick="toggleChip(this)">Anxiety</div><div class="filter-chip" onclick="toggleChip(this)">Depression</div><div class="filter-chip" onclick="toggleChip(this)">Trauma</div><div class="filter-chip" onclick="toggleChip(this)">Relationships</div><div class="filter-chip" onclick="toggleChip(this)">Academic</div></div></div>
+        <div><div class="community-section-title" style="margin-bottom:8px">Availability</div><div class="availability-toggle"><button class="avail-btn active" onclick="setAvail(this)">Any time</button><button class="avail-btn" onclick="setAvail(this)">Today</button><button class="avail-btn" onclick="setAvail(this)">This week</button></div></div>
+        <div style="padding:12px;background:var(--purple-pale);border-radius:var(--radius-sm)"><div style="font-size:12px;color:var(--purple-dark);font-weight:600;margin-bottom:4px">Free first session</div><div style="font-size:11px;color:var(--text-muted);line-height:1.5">All therapists offer a complimentary 15-min intro call. No commitment needed.</div></div>
+      </div>
+    </div>
+  </div>
+ 
+  <div class="chat-main">
+    <!-- CHAT MAIN VIEW -->
+    <div class="main-view active" id="view-chat">
+      <div class="chat-topbar"><button class="back-btn" onclick="goToLanding()">← Back</button><div class="topbar-center"><div class="online-dot"></div>Eleos is here with you</div><div class="topbar-right"><span id="msg-count">0 messages</span></div></div>
+      <div class="messages-wrap" id="messages"></div>
+      <div class="input-area"><div class="input-row"><textarea id="msg-input" placeholder="What's on your mind?" rows="1"></textarea><button id="send-btn" onclick="sendMessage()"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg></button></div><div class="input-footer">Press Enter to send · Shift+Enter for new line</div></div>
+    </div>
+    <!-- COMMUNITY MAIN VIEW -->
+    <div class="main-view" id="view-community">
+      <div class="community-hero"><h2>Find Your People</h2><p>You're not alone. Connect with others who truly understand what you're going through. All sessions are moderated and safe.</p></div>
+      <div class="community-stats"><div class="stat-box"><div class="stat-num">2,400+</div><div class="stat-label">Members</div></div><div class="stat-box"><div class="stat-num">12</div><div class="stat-label">Active Groups</div></div><div class="stat-box"><div class="stat-num">Free</div><div class="stat-label">Always</div></div></div>
+      <div class="sessions-list"><h3>Group Sessions</h3>
+        <div class="session-card"><div class="session-icon" style="background:#f0eeff">🌬️</div><div class="session-info"><div class="session-name">Anxiety &amp; Stress Circle</div><div class="session-desc">A warm, guided session to share, breathe, and feel less alone. Facilitated by trained peer supporters.</div><div class="session-footer"><span class="session-pill pill-live">● Live now</span><span class="session-pill pill-members">👥 24 joined</span></div></div><button class="session-join-btn" onclick="joinSession(this)">Join</button></div>
+        <div class="session-card"><div class="session-icon" style="background:#e8f8f5">📚</div><div class="session-info"><div class="session-name">Academic Pressure Support</div><div class="session-desc">Students sharing coping strategies for exams, deadlines, and the fear of failure.</div><div class="session-footer"><span class="session-pill pill-time">📅 Sat, 7 PM IST</span><span class="session-pill pill-members">👥 41 members</span></div></div><button class="session-join-btn" onclick="joinSession(this)">RSVP</button></div>
+        <div class="session-card"><div class="session-icon" style="background:#fff8e1">🌙</div><div class="session-info"><div class="session-name">Loneliness &amp; Connection</div><div class="session-desc">For those who feel unseen. A gentle space to open up and meet people who get it.</div><div class="session-footer"><span class="session-pill pill-time">📅 Wed, 6 PM IST</span><span class="session-pill pill-members">👥 18 members</span></div></div><button class="session-join-btn" onclick="joinSession(this)">RSVP</button></div>
+        <div class="session-card"><div class="session-icon" style="background:#fdf0f4">💔</div><div class="session-info"><div class="session-name">Heartbreak &amp; Moving On</div><div class="session-desc">Navigating grief after relationships — romantic, friendship, or family.</div><div class="session-footer"><span class="session-pill pill-time">📅 Fri, 8 PM IST</span><span class="session-pill pill-members">👥 29 members</span></div></div><button class="session-join-btn" onclick="joinSession(this)">RSVP</button></div>
+        <div class="session-card"><div class="session-icon" style="background:#eafaf1">🌱</div><div class="session-info"><div class="session-name">Identity &amp; Self-Worth</div><div class="session-desc">Explore questions of who you are with others on the same journey. Judgment-free zone.</div><div class="session-footer"><span class="session-pill pill-time">📅 Sun, 5 PM IST</span><span class="session-pill pill-members">👥 35 members</span></div></div><button class="session-join-btn" onclick="joinSession(this)">RSVP</button></div>
+        <div style="text-align:center;padding:16px 0 8px"><div style="font-size:13px;color:var(--text-muted);line-height:1.6">All sessions are peer-facilitated and moderated.<br>Anonymous participation is always available.</div></div>
+      </div>
+    </div>
+    <!-- THERAPIST MAIN VIEW -->
+    <div class="main-view" id="view-therapist">
+      <div class="therapist-topbar"><h2>Book a Therapist</h2><p>Licensed professionals, available online. Your first 15 minutes is always free.</p></div>
+      <div class="therapist-grid" id="therapist-grid">
+        <div class="therapist-card" data-name="Dr. Meera Kapoor" data-tags="anxiety depression"><div class="therapist-avatar" style="background:linear-gradient(135deg,#6C5CE7,#a29bfe)">MK</div><div class="therapist-info"><div class="therapist-name">Dr. Meera Kapoor</div><div class="therapist-creds">PhD Clinical Psychology · 9 years experience</div><div class="avail-badge avail-now">● Available today</div><div class="therapist-tags"><span class="tag">Anxiety</span><span class="tag">Depression</span><span class="tag">Young Adults</span></div><div class="therapist-meta"><div class="meta-item"><span class="rating-stars">★★★★★</span> 4.9</div><div class="meta-item">📹 Video · 📞 Call</div><div class="meta-item">₹600/session</div></div><button class="book-btn" onclick="openBooking('Dr. Meera Kapoor', 'MK', 'linear-gradient(135deg,#6C5CE7,#a29bfe)')">Book Session →</button></div></div>
+        <div class="therapist-card" data-name="Arjun Nair" data-tags="academic stress relationships"><div class="therapist-avatar" style="background:linear-gradient(135deg,#00cec9,#55efc4)">AN</div><div class="therapist-info"><div class="therapist-name">Arjun Nair</div><div class="therapist-creds">MSc Counselling Psychology · 5 years experience</div><div class="avail-badge avail-now">● Available today</div><div class="therapist-tags"><span class="tag">Academic Stress</span><span class="tag">Relationships</span><span class="tag">Self-Esteem</span></div><div class="therapist-meta"><div class="meta-item"><span class="rating-stars">★★★★★</span> 4.8</div><div class="meta-item">📹 Video · 💬 Chat</div><div class="meta-item">₹500/session</div></div><button class="book-btn" onclick="openBooking('Arjun Nair', 'AN', 'linear-gradient(135deg,#00cec9,#55efc4)')">Book Session →</button></div></div>
+        <div class="therapist-card" data-name="Dr. Priya Sharma" data-tags="trauma anxiety"><div class="therapist-avatar" style="background:linear-gradient(135deg,#fd79a8,#fdcb6e)">PS</div><div class="therapist-info"><div class="therapist-name">Dr. Priya Sharma</div><div class="therapist-creds">MD Psychiatry · 12 years experience</div><div class="avail-badge avail-soon">Next available: Tomorrow</div><div class="therapist-tags"><span class="tag">Trauma</span><span class="tag">Anxiety Disorders</span><span class="tag">CBT</span></div><div class="therapist-meta"><div class="meta-item"><span class="rating-stars">★★★★★</span> 5.0</div><div class="meta-item">📹 Video only</div><div class="meta-item">₹800/session</div></div><button class="book-btn" onclick="openBooking('Dr. Priya Sharma', 'PS', 'linear-gradient(135deg,#fd79a8,#fdcb6e)')">Book Session →</button></div></div>
+        <div class="therapist-card" data-name="Rohan Desai" data-tags="depression relationships identity"><div class="therapist-avatar" style="background:linear-gradient(135deg,#2d3436,#636e72)">RD</div><div class="therapist-info"><div class="therapist-name">Rohan Desai</div><div class="therapist-creds">MA Counselling · Certified CBT Practitioner · 7 years</div><div class="avail-badge avail-now">● Available today</div><div class="therapist-tags"><span class="tag">Depression</span><span class="tag">Identity</span><span class="tag">Mindfulness</span></div><div class="therapist-meta"><div class="meta-item"><span class="rating-stars">★★★★☆</span> 4.7</div><div class="meta-item">📹 Video · 📞 Call</div><div class="meta-item">₹550/session</div></div><button class="book-btn" onclick="openBooking('Rohan Desai', 'RD', 'linear-gradient(135deg,#2d3436,#636e72)')">Book Session →</button></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+ 
+<!-- BOOKING MODAL -->
+<div class="booking-modal-overlay" id="booking-modal" onclick="closeModalOnOverlay(event)"><div class="modal"><div id="modal-inner"><div class="modal-header"><div class="modal-therapist-info" id="modal-therapist-info"></div><button class="modal-close" onclick="closeBooking()">✕</button></div><div class="modal-body"><div class="modal-section-title">Choose a date</div><div class="date-grid" id="date-grid"></div><div class="modal-section-title">Choose a time</div><div class="time-grid" id="time-grid"></div><div class="modal-section-title">Session type</div><div class="session-type-row"><button class="type-btn selected" onclick="selectType(this)"><span class="type-icon">📹</span>Video Call</button><button class="type-btn" onclick="selectType(this)"><span class="type-icon">📞</span>Voice Call</button><button class="type-btn" onclick="selectType(this)"><span class="type-icon">💬</span>Chat</button></div><div class="modal-note" style="margin-top:16px">Your first 15 minutes are free — no payment needed to book. A confirmation will be sent to your registered email.</div><button class="confirm-btn" id="confirm-btn" onclick="confirmBooking()" disabled>Confirm Booking</button></div></div><div class="booking-success" id="booking-success" style="display:none"><div class="success-icon">✓</div><h3>You're all set!</h3><p id="booking-confirm-text">Your session has been booked. You'll receive a confirmation shortly.</p><button class="success-close" onclick="closeBooking()">Close</button></div></div></div>
+ 
+<script>
+// Groq API configuration
+const GROQ_API_KEY = "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";
+const GROQ_MODEL   = "llama-3.3-70b-versatile";
+const GROQ_ENDPOINT = "https://api.groq.com/openai/v1/chat/completions";
+ 
+const SYSTEM_PROMPT = `You are Eleos — a warm, empathetic AI emotional support companion built specifically for users aged 15–25.
+YOUR ROLE: You are a supportive friend, NOT a therapist or authority figure. Make the user feel heard and validated.
+CORE RULES: Acknowledge feelings first, never dismiss emotions, never give medical diagnoses, keep responses concise (2-4 sentences), ask ONE open-ended question.
+EMOTION MAPPING: Sad→comfort, Anxious→grounding, Angry→de-escalate, Lonely→warmth, Overwhelmed→simplify, Happy→celebrate, Neutral→reflect.
+CRISIS PROTOCOL: If user expresses suicidal thoughts or severe distress, respond with calm compassion and gently encourage them to reach out to a helpline.
+MANDATORY FORMAT at the end of EVERY response on its own line:
+EMOTION: <Sad|Anxious|Angry|Lonely|Overwhelmed|Happy|Neutral|Crisis>`;
+ 
+let history = [];
+let isLoading = false;
+let msgCount = 0;
+let lastBotText = "";
+let currentUser = null;
+let isSignUpMode = false;
+const fakeUsers = {};
+let selectedDate = null, selectedTime = null, currentBookingName = "";
+let recognition = null, isListening = false, isSpeaking = false, voiceOutputEnabled = true, currentUtterance = null;
+ 
+const EMOTION_MAP = { Sad:{sub:"Feeling low",emoji:"😢"}, Anxious:{sub:"Feeling anxious",emoji:"😰"}, Angry:{sub:"Feeling frustrated",emoji:"😠"}, Lonely:{sub:"Feeling lonely",emoji:"🥺"}, Overwhelmed:{sub:"Feeling overwhelmed",emoji:"😵"}, Happy:{sub:"Feeling positive",emoji:"😊"}, Neutral:{sub:"Here with you",emoji:"💙"}, Crisis:{sub:"Needs support",emoji:"🆘"} };
+ 
+function openLoginModal() { isSignUpMode=false; document.getElementById("login-modal").classList.add("open"); updateAuthMode(); }
+function closeLoginModal() { document.getElementById("login-modal").classList.remove("open"); clearAuthError(); }
+function toggleAuthMode(e) { e.preventDefault(); isSignUpMode=!isSignUpMode; updateAuthMode(); clearAuthError(); }
+function updateAuthMode() { document.getElementById("submit-btn").textContent=isSignUpMode?"Create Account":"Sign In"; document.getElementById("toggle-text").textContent=isSignUpMode?"Already have an account?":"Don't have an account?"; document.getElementById("toggle-link").textContent=isSignUpMode?"Sign In":"Sign Up"; document.querySelector(".login-title").textContent=isSignUpMode?"Create account":"Welcome back"; document.querySelector(".login-subtitle").textContent=isSignUpMode?"Start your journey with Eleos":"Sign in to continue your journey"; }
+function showAuthError(msg) { let el=document.getElementById("error-msg"); el.textContent=msg; el.classList.add("visible"); }
+function clearAuthError() { let el=document.getElementById("error-msg"); el.textContent=""; el.classList.remove("visible"); }
+function handleAuthSubmit(e) { e.preventDefault(); clearAuthError(); let email=document.getElementById("email").value.trim(), pwd=document.getElementById("password").value; if(!email||!pwd) showAuthError("Please fill in all fields."); else if(pwd.length<6) showAuthError("Password must be at least 6 characters."); else if(isSignUpMode){ if(fakeUsers[email]) showAuthError("An account with this email already exists."); else { fakeUsers[email]=pwd; currentUser={email}; closeLoginModal(); goToChat(); } } else { if(!fakeUsers[email]||fakeUsers[email]!==pwd) showAuthError("Invalid email or password."); else { currentUser={email}; closeLoginModal(); goToChat(); } } }
+function handleStartTalking() { if(currentUser) goToChat(); else openLoginModal(); }
+function goToChat() { document.getElementById("landing").classList.remove("active"); document.getElementById("chat-page").classList.add("active"); if(history.length===0){ let intro="Hey, I'm really glad you're here. This is your safe space — no judgment, ever. How are you feeling today?"; addBotMessage(intro); lastBotText=intro; speak(intro); } setTimeout(()=>document.getElementById("msg-input").focus(),100); }
+function goToLanding() { stopSpeaking(); if(isListening&&recognition) recognition.stop(); document.getElementById("chat-page").classList.remove("active"); document.getElementById("landing").classList.add("active"); }
+function logout() { if(confirm("Log out of Eleos?")){ currentUser=null; history=[]; msgCount=0; lastBotText=""; stopSpeaking(); document.getElementById("messages").innerHTML=""; document.getElementById("msg-count").textContent="0 messages"; document.getElementById("emotion-emoji").textContent=""; document.getElementById("emotion-name").textContent="Ready to listen"; document.getElementById("emotion-sub").textContent="Start a conversation"; document.getElementById("crisis-box").style.display="none"; goToLanding(); } }
+function switchTab(tab){ document.querySelectorAll('.tab-nav-btn').forEach(b=>b.classList.remove('active')); document.getElementById('tab-'+tab).classList.add('active'); document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active')); document.getElementById('panel-'+tab).classList.add('active'); document.querySelectorAll('.main-view').forEach(v=>v.classList.remove('active')); document.getElementById('view-'+tab).classList.add('active'); }
+function addBotMessage(text){ let wrap=document.getElementById("messages"), row=document.createElement("div"); row.className="msg-row bot"; row.innerHTML=`<div class="avatar bot">💙</div><div class="bubble">${escapeHtml(text)}</div>`; wrap.appendChild(row); scrollBottom(); }
+function addUserMessage(text){ let wrap=document.getElementById("messages"), row=document.createElement("div"); row.className="msg-row user"; row.innerHTML=`<div class="bubble">${escapeHtml(text)}</div><div class="avatar user">YOU</div>`; wrap.appendChild(row); msgCount++; document.getElementById("msg-count").textContent=msgCount+" message"+(msgCount!==1?"s":""); scrollBottom(); }
+function showTyping(){ let wrap=document.getElementById("messages"), row=document.createElement("div"); row.className="msg-row bot"; row.id="typing-row"; row.innerHTML=`<div class="avatar bot">💙</div><div class="bubble typing-bubble"><div class="t-dot"></div><div class="t-dot"></div><div class="t-dot"></div></div>`; wrap.appendChild(row); scrollBottom(); }
+function removeTyping(){ let el=document.getElementById("typing-row"); if(el)el.remove(); }
+function scrollBottom(){ let wrap=document.getElementById("messages"); wrap.scrollTop=wrap.scrollHeight; }
+function escapeHtml(text){ return text.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/\n/g,"<br/>"); }
+function updateEmotion(label){ let info=EMOTION_MAP[label]||EMOTION_MAP["Neutral"]; document.getElementById("emotion-emoji").textContent=info.emoji; document.getElementById("emotion-name").textContent=label; document.getElementById("emotion-sub").textContent=info.sub; document.getElementById("crisis-box").style.display=label==="Crisis"?"block":"none"; }
+async function callGroq(userText){ if(!GROQ_API_KEY||GROQ_API_KEY==="YOUR_GROQ_API_KEY_HERE")throw new Error("NO_KEY"); let messages=[{role:"system",content:SYSTEM_PROMPT},...history,{role:"user",content:userText}]; let res=await fetch(GROQ_ENDPOINT,{method:"POST",headers:{"Content-Type":"application/json","Authorization":`Bearer ${GROQ_API_KEY}`},body:JSON.stringify({model:GROQ_MODEL,messages,temperature:0.85,max_tokens:512})}); if(!res.ok)throw new Error("API error "+res.status); let data=await res.json(); let reply=data.choices?.[0]?.message?.content||""; history.push({role:"user",content:userText}); history.push({role:"assistant",content:reply}); return reply; }
+async function sendMessage(){ let input=document.getElementById("msg-input"),btn=document.getElementById("send-btn"),text=input.value.trim(); if(!text||isLoading)return; stopSpeaking(); input.value=""; input.style.height="auto"; isLoading=true; btn.disabled=true; addUserMessage(text); showTyping(); try{ let fullReply=await callGroq(text); let emotionMatch=fullReply.match(/EMOTION:\s*(\w+)\s*$/im); let emotion=emotionMatch?emotionMatch[1]:"Neutral"; let reply=fullReply.replace(/EMOTION:\s*\w+\s*$/im,"").trim(); removeTyping(); addBotMessage(reply); updateEmotion(emotion); lastBotText=reply; speak(reply); } catch(err){ removeTyping(); let errMsg="I had a little trouble connecting. Take a breath — try again in a moment."; if(err.message==="NO_KEY")errMsg="⚠️ No API key set."; addBotMessage(errMsg); speak(errMsg); } isLoading=false; btn.disabled=false; input.focus(); }
+function sendQuick(text){ switchTab('chat'); document.getElementById("msg-input").value=text; sendMessage(); }
+function clearChat(){ if(!confirm("Clear this conversation?"))return; stopSpeaking(); history=[]; msgCount=0; lastBotText=""; document.getElementById("messages").innerHTML=""; document.getElementById("msg-count").textContent="0 messages"; document.getElementById("emotion-emoji").textContent=""; document.getElementById("emotion-name").textContent="Ready to listen"; document.getElementById("emotion-sub").textContent="Start a conversation"; document.getElementById("crisis-box").style.display="none"; let fresh="Hey, fresh start! How are you feeling? I'm all ears."; addBotMessage(fresh); lastBotText=fresh; speak(fresh); }
+function joinGroup(btn,e){ e.stopPropagation(); let card=btn.closest('.group-card'); if(btn.classList.contains('joined-btn')){ btn.textContent='Join Group'; btn.classList.remove('joined-btn'); card.classList.remove('joined'); }else{ btn.textContent='✓ Joined'; btn.classList.add('joined-btn'); card.classList.add('joined'); } }
+function joinSession(btn){ if(btn.classList.contains('session-joined')){ btn.textContent=btn.dataset.original||'Join'; btn.classList.remove('session-joined'); }else{ btn.dataset.original=btn.textContent; btn.textContent='✓ Joined'; btn.classList.add('session-joined'); } }
+function toggleChip(chip){ document.querySelectorAll('.filter-chip').forEach(c=>c.classList.remove('active')); chip.classList.add('active'); filterTherapists(''); }
+function setAvail(btn){ document.querySelectorAll('.avail-btn').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); }
+function filterTherapists(query){ let q=query.toLowerCase().trim(), activeChip=document.querySelector('.filter-chip.active'), specialty=activeChip?activeChip.textContent.toLowerCase():'all'; document.querySelectorAll('.therapist-card').forEach(card=>{ let name=card.dataset.name.toLowerCase(), tags=card.dataset.tags.toLowerCase(); let matchesQuery=!q||name.includes(q)||tags.includes(q); let matchesChip=specialty==='all'||tags.includes(specialty); card.style.display=(matchesQuery&&matchesChip)?'flex':'none'; }); }
+function openBooking(name,initials,gradient){ currentBookingName=name; selectedDate=null; selectedTime=null; document.getElementById('modal-therapist-info').innerHTML=`<div style="width:42px;height:42px;border-radius:50%;background:${gradient};display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:15px;">${initials}</div><div><div style="font-family:var(--font-head);font-size:16px;font-weight:700;">${name}</div><div style="font-size:12px;color:var(--text-muted)">Free 15-min intro</div></div>`; let dg=document.getElementById('date-grid'); dg.innerHTML=''; let days=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],now=new Date(); for(let i=1;i<=8;i++){ let d=new Date(now); d.setDate(now.getDate()+i); let btn=document.createElement('button'); btn.className='date-btn'; btn.innerHTML=`<span class="date-day">${days[d.getDay()]}</span><span class="date-num">${d.getDate()}</span><span class="date-day">${months[d.getMonth()]}</span>`; btn.onclick=()=>{ document.querySelectorAll('.date-btn').forEach(b=>b.classList.remove('selected')); btn.classList.add('selected'); selectedDate=d; updateConfirmBtn(); }; dg.appendChild(btn); } let tg=document.getElementById('time-grid'),slots=['9:00 AM','10:00 AM','11:00 AM','12:00 PM','2:00 PM','3:00 PM','4:00 PM','5:00 PM','6:00 PM'],unavail=['10:00 AM','3:00 PM']; tg.innerHTML=slots.map(t=>`<button class="time-btn${unavail.includes(t)?' unavailable':''}" onclick="selectTime(this,'${t}')" ${unavail.includes(t)?'disabled':''}>${t}${unavail.includes(t)?'<br><span style="font-size:9px">Booked</span>':''}</button>`).join(''); document.getElementById('modal-inner').style.display=''; document.getElementById('booking-success').style.display='none'; document.querySelectorAll('.type-btn').forEach((b,i)=>b.classList.toggle('selected',i===0)); updateConfirmBtn(); document.getElementById('booking-modal').classList.add('open'); }
+function selectTime(btn,time){ document.querySelectorAll('.time-btn:not(.unavailable)').forEach(b=>b.classList.remove('selected')); btn.classList.add('selected'); selectedTime=time; updateConfirmBtn(); }
+function selectType(btn){ document.querySelectorAll('.type-btn').forEach(b=>b.classList.remove('selected')); btn.classList.add('selected'); }
+function updateConfirmBtn(){ document.getElementById('confirm-btn').disabled=!(selectedDate&&selectedTime); }
+function confirmBooking(){ let days=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'],months=['January','February','March','April','May','June','July','August','September','October','November','December']; let dateStr=`${days[selectedDate.getDay()]}, ${selectedDate.getDate()} ${months[selectedDate.getMonth()]}`; let type=document.querySelector('.type-btn.selected')?.textContent?.trim()||'Video Call'; document.getElementById('booking-confirm-text').innerHTML=`Your ${type} session with ${currentBookingName} is confirmed for ${dateStr} at ${selectedTime}. A reminder will be sent to your email.`; document.getElementById('modal-inner').style.display='none'; document.getElementById('booking-success').style.display='block'; }
+function closeBooking(){ document.getElementById('booking-modal').classList.remove('open'); }
+function closeModalOnOverlay(e){ if(e.target.id==='booking-modal') closeBooking(); }
+function initSpeechRecognition(){ let SR=window.SpeechRecognition||window.webkitSpeechRecognition; if(!SR)return null; let rec=new SR(); rec.continuous=false; rec.interimResults=true; rec.lang="en-US"; rec.onstart=()=>{ isListening=true; updateMicButton(true); showVoiceStatus("Listening… speak now 🎙️"); }; rec.onresult=(e)=>{ let interim="",final=""; for(let i=e.resultIndex;i<e.results.length;i++){ let t=e.results[i][0].transcript; if(e.results[i].isFinal) final+=t; else interim+=t; } let input=document.getElementById("msg-input"); input.value=final||interim; input.style.height="auto"; input.style.height=Math.min(input.scrollHeight,140)+"px"; }; rec.onend=()=>{ isListening=false; updateMicButton(false); hideVoiceStatus(); let input=document.getElementById("msg-input"); if(input.value.trim()) setTimeout(()=>sendMessage(),300); }; rec.onerror=(e)=>{ isListening=false; updateMicButton(false); hideVoiceStatus(); if(e.error!=="no-speech") showVoiceStatus("Voice error: "+e.error,true); }; return rec; }
+function toggleVoiceInput(){ if(!recognition){ recognition=initSpeechRecognition(); if(!recognition){ showVoiceStatus("Voice input not supported ❌",true); return; } } if(isSpeaking) stopSpeaking(); if(isListening) recognition.stop(); else{ document.getElementById("msg-input").value=""; recognition.start(); } }
+function updateMicButton(active){ let btn=document.getElementById("mic-btn"); if(btn){ btn.classList.toggle("mic-active",active); btn.innerHTML=active?`<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><rect x="9" y="9" width="6" height="6" rx="1"/><path d="M12 1a3 3 0 0 1 3 3v5a3 3 0 0 1-6 0V4a3 3 0 0 1 3-3z" opacity="0.3"/><path d="M19 10v1a7 7 0 0 1-14 0v-1" stroke="currentColor" stroke-width="2" fill="none"/><line x1="12" y1="19" x2="12" y2="23" stroke="currentColor" stroke-width="2"/><line x1="8" y1="23" x2="16" y2="23" stroke="currentColor" stroke-width="2"/></svg>`:`<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 0 1 3 3v5a3 3 0 0 1-6 0V4a3 3 0 0 1 3-3z"/><path d="M19 10v1a7 7 0 0 1-14 0v-1"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>`; } }
+function showVoiceStatus(msg,isError=false){ let el=document.getElementById("voice-status"); if(!el){ el=document.createElement("div"); el.id="voice-status"; document.querySelector(".input-area").prepend(el); } el.textContent=msg; el.className="voice-status"+(isError?" voice-status-error":""); el.style.display="block"; if(isError) setTimeout(()=>hideVoiceStatus(),3000); }
+function hideVoiceStatus(){ let el=document.getElementById("voice-status"); if(el) el.style.display="none"; }
+function speak(text){ if(!voiceOutputEnabled||!window.speechSynthesis)return; stopSpeaking(); let cleaned=text.replace(/[\u{1F000}-\u{1FFFF}]/gu,"").replace(/[\u2600-\u27FF]/g,"").replace(/[*_`#]/g,"").replace(/\s+/g," ").trim(); if(!cleaned)return; currentUtterance=new SpeechSynthesisUtterance(cleaned); currentUtterance.rate=0.92; currentUtterance.pitch=1.05; currentUtterance.volume=1.0; window.speechSynthesis.speak(currentUtterance); currentUtterance.onstart=()=>{ isSpeaking=true; updateSpeakerButton(true); }; currentUtterance.onend=()=>{ isSpeaking=false; currentUtterance=null; updateSpeakerButton(false); }; currentUtterance.onerror=()=>{ isSpeaking=false; currentUtterance=null; updateSpeakerButton(false); }; }
+function stopSpeaking(){ if(window.speechSynthesis) window.speechSynthesis.cancel(); isSpeaking=false; if(currentUtterance) currentUtterance=null; updateSpeakerButton(false); }
+function toggleVoiceOutput(){ voiceOutputEnabled=!voiceOutputEnabled; if(!voiceOutputEnabled) stopSpeaking(); updateVoiceToggleButton(); showVoiceStatus(voiceOutputEnabled?"Voice output on":"Voice output off"); setTimeout(()=>hideVoiceStatus(),2000); }
+function updateSpeakerButton(speaking){ let btn=document.getElementById("speaker-btn"); if(btn){ btn.classList.toggle("speaking-active",speaking); btn.innerHTML=speaking?`<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>`:`<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>`; } }
+function updateVoiceToggleButton(){ let btn=document.getElementById("voice-toggle-btn"); if(btn){ btn.classList.toggle("muted",!voiceOutputEnabled); btn.innerHTML=voiceOutputEnabled?`<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>`:`<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>`; } }
+function injectVoiceUI(){ let sendBtn=document.getElementById("send-btn"); let micBtn=document.createElement("button"); micBtn.id="mic-btn"; micBtn.className="mic-btn"; micBtn.onclick=toggleVoiceInput; micBtn.innerHTML=`<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 0 1 3 3v5a3 3 0 0 1-6 0V4a3 3 0 0 1 3-3z"/><path d="M19 10v1a7 7 0 0 1-14 0v-1"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>`; sendBtn.parentNode.insertBefore(micBtn,sendBtn); let speakerBtn=document.createElement("button"); speakerBtn.id="speaker-btn"; speakerBtn.className="speaker-btn"; speakerBtn.onclick=()=>{ if(isSpeaking) stopSpeaking(); else if(lastBotText) speak(lastBotText); }; speakerBtn.innerHTML=`<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>`; micBtn.parentNode.insertBefore(speakerBtn,micBtn); let topRight=document.getElementById("msg-count"); let voiceToggle=document.createElement("button"); voiceToggle.id="voice-toggle-btn"; voiceToggle.className="voice-toggle-btn"; voiceToggle.onclick=toggleVoiceOutput; voiceToggle.innerHTML=`<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>`; topRight.parentNode.insertBefore(voiceToggle,topRight); }
+document.addEventListener("DOMContentLoaded",()=>{ injectVoiceUI(); let input=document.getElementById("msg-input"); input.addEventListener("keydown",e=>{ if(e.key==="Enter"&&!e.shiftKey){ e.preventDefault(); sendMessage(); } }); input.addEventListener("input",()=>{ input.style.height="auto"; input.style.height=Math.min(input.scrollHeight,140)+"px"; }); if(window.speechSynthesis) window.speechSynthesis.getVoices(); });
+</script>
+</body>
+</html>
