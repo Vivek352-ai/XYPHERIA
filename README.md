@@ -51,6 +51,12 @@ Open your browser: **http://localhost:3000**
 - Empathetic responses
 - Context-aware conversations
 
+- **Communnity Groups**
+- Meet like minded people
+
+- **Therapist Consultation**
+- Connect with therapist can book online or offline
+- 
 ## Configuration
 
 **Required:** Set your Groq API key in the `.env` file:
