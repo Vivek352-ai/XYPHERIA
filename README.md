@@ -10,7 +10,7 @@ npm install
 ### 2. Configure API Key
 ```bash
 # Edit .env file and add your Groq API key:
-GROQ_API_KEY="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"
+GROQ_API_KEY="Enter_api_key"
 ```
 
 Get a free API key at: https://console.groq.com/keys
